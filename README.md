@@ -1,6 +1,6 @@
 # BrainYears2026
 
-Runnable code package for the BrainYears manuscript.
+Runnable code package for the BrainYears manuscript using 20 rows of simulated data. 
 
 ## Files
 
@@ -8,7 +8,6 @@ Runnable code package for the BrainYears manuscript.
 - generate_figures.py: generates manuscript-related figure panels.
 - model_bundle.joblib: serialized trained model and preprocessing bundle.
 - model_simulated_data.csv: simulated demo dataset for code execution.
-- figures/: generated SVG figure panels.
 
 ## Demo data
 
