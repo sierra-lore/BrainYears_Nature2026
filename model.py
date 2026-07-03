@@ -13,7 +13,7 @@ from sklearn.metrics import mean_absolute_error
 from scipy.stats import pearsonr
 
 BASE = Path(__file__).resolve().parent
-DATA_PATH = BASE / "model.csv"
+DATA_PATH = BASE / "model_simulated_data.csv"
 OUT_BUNDLE = BASE / "model_bundle.joblib"
 
 RANDOM_STATE = 52
@@ -108,55 +108,22 @@ X_all = Xdf.to_numpy(float)
 
 print(f"After NaN filtering: {len(X_all)} samples, {X_all.shape[1]} numeric features")
 
-# NOTE: keeping your hardcoded age bin assignments exactly as-is
-SORTED_BIN_ASSIGNMENTS = np.array([
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10,
-    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-    11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-    11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-    12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-    12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-    13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14,
-    14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
-    14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
-    16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
-    16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
-    17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17
-])
+def make_stratify_bins(y, n_bins):
+    if not n_bins or n_bins < 2 or len(y) < n_bins * 2:
+        return None
+    try:
+        bins = pd.qcut(pd.Series(y), q=n_bins, duplicates="drop")
+        if (bins.value_counts() >= 2).all():
+            return bins
+    except Exception as exc:
+        print(f"   Stratify binning skipped: {type(exc).__name__}: {exc}")
+    return None
 
-print(f"\n📊 Creating {STRATIFY_BINS} age bins for stratified splitting...")
-try:
-    sort_idx = np.argsort(y_all)
-    if len(y_all) != len(SORTED_BIN_ASSIGNMENTS):
-        raise ValueError(f"Sample count mismatch: expected {len(SORTED_BIN_ASSIGNMENTS)}, got {len(y_all)}")
-    age_bins = np.empty(len(y_all), dtype=int)
-    age_bins[sort_idx] = SORTED_BIN_ASSIGNMENTS
 
-    _, bin_counts = np.unique(age_bins, return_counts=True)
-    stratify_param = age_bins if np.all(bin_counts >= 2) else None
-except Exception as e:
-    print(f"   ⚠️  Stratify binning failed: {type(e).__name__}: {e}")
-    stratify_param = None
+print(f"\n📊 Creating up to {STRATIFY_BINS} age bins for stratified splitting...")
+stratify_param = make_stratify_bins(y_all, STRATIFY_BINS)
+if stratify_param is None:
+    print("   Using an unstratified split for the available sample size.")
 
 print(f"\n🔀 Splitting data (test_size=0.20, random_state={RANDOM_STATE})...")
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(

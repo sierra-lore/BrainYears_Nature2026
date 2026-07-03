@@ -115,7 +115,7 @@ def _new_panel():
 
 # %%
 BASE = Path(__file__).resolve().parent
-DATASETS = {"model": pd.read_csv(BASE / "model.csv")}
+DATASETS = {"model": pd.read_csv(BASE / "model_simulated_data.csv")}
 
 GROUPING_RULES = [
     ("ERP Inhibit", ["INHIBIT", "CZ_Pe", "CZ_ERN", "NOGO-INCONGRUENT", "NOGO-CONGRUENT"]),
@@ -360,7 +360,7 @@ else:
     missing = [c for c in feature_names if c not in X_model_all.columns]
     if missing:
         raise KeyError(
-            f"Missing {len(missing)} feature columns in model.csv. Example: {missing[:10]}"
+            f"Missing {len(missing)} feature columns in model_simulated_data.csv. Example: {missing[:10]}"
         )
     X_model = X_model_all.reindex(columns=feature_names)
 
